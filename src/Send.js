@@ -1,12 +1,12 @@
 /* eslint no-use-before-define: ["error", { "variables": false }] */
 
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { Children } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ViewPropTypes } from 'react-native';
 import Color from './Color';
 
 export default function Send({ text, containerStyle, onSend, children, textStyle, label }) {
-  if (text.trim().length > 0) {
+  if (text.trim().length > 0 || Children.count(children) > 0) {
     return (
       <TouchableOpacity
         style={[styles.container, containerStyle]}

@@ -120,6 +120,15 @@ class GiftedChat extends React.Component {
     this.setTextFromProp(text);
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.minInputToolbarHeight !== this.props.minInputToolbarHeight) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        messagesContainerHeight: this.prepareMessagesContainerHeight(this.getBasicMessagesContainerHeight()),
+      });
+    }
+  }
+
   initLocale() {
     if (this.props.locale === null || moment.locales().indexOf(this.props.locale) === -1) {
       this.setLocale('en');

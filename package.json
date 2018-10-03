@@ -7,7 +7,16 @@
     "type": "git",
     "url": "git+https://github.com/FaridSafi/react-native-gifted-chat.git"
   },
-  "keywords": ["android", "ios", "react-native", "react", "react-component", "messenger", "message", "chat"],
+  "keywords": [
+    "android",
+    "ios",
+    "react-native",
+    "react",
+    "react-component",
+    "messenger",
+    "message",
+    "chat"
+  ],
   "author": "Farid Safi",
   "license": "MIT",
   "bugs": {
@@ -16,18 +25,22 @@
   "homepage": "https://github.com/FaridSafi/react-native-gifted-chat#readme",
   "scripts": {
     "lint": "eslint . --ext .js,.jsx",
-    "precommit": "yarn lint",
     "test": "jest --no-watchman",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "appr": "cd example-expo && ./setPRVersion.js && yarn && yarn appr",
-    "deploy":
-      "cd example-expo && yarn install && exp login --username $EXP_USERNAME --password $EXP_PASSWORD && exp publish --non-interactive"
+    "appr": "cd example-expo && ./setPRVersion.js && npm && npm appr",
+    "deploy": "cd example-expo && npm install && exp login --username $EXP_USERNAME --password $EXP_PASSWORD && exp publish --non-interactive"
   },
   "jest": {
     "preset": "react-native",
-    "setupFiles": ["./tests/setup.js"],
-    "modulePathIgnorePatterns": ["<rootDir>/example", "<rootDir>/example-expo", "<rootDir>/example-slack-message"]
+    "setupFiles": [
+      "./tests/setup.js"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/example",
+      "<rootDir>/example-expo",
+      "<rootDir>/example-slack-message"
+    ]
   },
   "devDependencies": {
     "@types/react": "^16.0.38",
@@ -59,5 +72,10 @@
     "react-native-parsed-text": "^0.0.20",
     "shallowequal": "1.0.2",
     "uuid": "3.2.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
   }
 }

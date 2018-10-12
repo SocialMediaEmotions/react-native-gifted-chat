@@ -1,11 +1,11 @@
 /* eslint no-use-before-define: ["error", { "variables": false }] */
 
 import PropTypes from 'prop-types';
-import React, { Children } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ViewPropTypes } from 'react-native';
 import Color from './Color';
 
-export default function Send({ text, containerStyle, onSend, children, textStyle, label, alwaysShowSend }) {
+export default function Send({ text, containerStyle, onSend, children, textStyle, label, alwaysShowSend, disabled }) {
   if (alwaysShowSend || text.trim().length > 0) {
     return (
       <TouchableOpacity
@@ -50,6 +50,7 @@ Send.defaultProps = {
   textStyle: {},
   children: null,
   alwaysShowSend: false,
+  disabled: false,
 };
 
 Send.propTypes = {
@@ -60,4 +61,5 @@ Send.propTypes = {
   textStyle: Text.propTypes.style,
   children: PropTypes.element,
   alwaysShowSend: PropTypes.bool,
+  disabled: PropTypes.bool,
 };

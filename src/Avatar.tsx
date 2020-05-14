@@ -1,15 +1,9 @@
 import PropTypes from 'prop-types'
 import React, { ReactNode } from 'react'
-import {
-  StyleSheet,
-  View,
-  ViewPropTypes,
-  ImageStyle,
-  ViewStyle,
-} from 'react-native'
+import { StyleSheet, View, ImageStyle, ViewStyle } from 'react-native'
 import GiftedAvatar from './GiftedAvatar'
-import { isSameUser, isSameDay } from './utils'
-import { Omit, IMessage, User, LeftRightStyle } from './types'
+import { StylePropType, isSameUser, isSameDay } from './utils'
+import { Omit, IMessage, User, LeftRightStyle } from './Models'
 
 const styles = {
   left: StyleSheet.create({
@@ -71,7 +65,7 @@ export default class Avatar<
     containerStyle: {},
     imageStyle: {},
     onPressAvatar: () => {},
-    onLongPressAvatar: () => { },
+    onLongPressAvatar: () => {},
   }
 
   static propTypes = {
@@ -85,12 +79,12 @@ export default class Avatar<
     onLongPressAvatar: PropTypes.func,
     renderAvatar: PropTypes.func,
     containerStyle: PropTypes.shape({
-      left: ViewPropTypes.style,
-      right: ViewPropTypes.style,
+      left: StylePropType,
+      right: StylePropType,
     }),
     imageStyle: PropTypes.shape({
-      left: ViewPropTypes.style,
-      right: ViewPropTypes.style,
+      left: StylePropType,
+      right: StylePropType,
     }),
   }
 

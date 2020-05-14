@@ -1,14 +1,14 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { View, ViewPropTypes, StyleSheet, ViewStyle } from 'react-native'
+import { View, StyleSheet, ViewStyle } from 'react-native'
 
 import Avatar from './Avatar'
 import Bubble from './Bubble'
 import SystemMessage from './SystemMessage'
 import Day from './Day'
 
-import { isSameUser } from './utils'
-import { IMessage, User, LeftRightStyle } from './types'
+import { StylePropType, isSameUser } from './utils'
+import { IMessage, User, LeftRightStyle } from './Models'
 
 const styles = {
   left: StyleSheet.create({
@@ -83,8 +83,8 @@ export default class Message<
     user: PropTypes.object,
     inverted: PropTypes.bool,
     containerStyle: PropTypes.shape({
-      left: ViewPropTypes.style,
-      right: ViewPropTypes.style,
+      left: StylePropType,
+      right: StylePropType,
     }),
     shouldUpdateMessage: PropTypes.func,
   }
@@ -132,6 +132,7 @@ export default class Message<
     if (this.props.renderBubble) {
       return this.props.renderBubble(props)
     }
+    // @ts-ignore
     return <Bubble {...props} />
   }
 
@@ -158,7 +159,11 @@ export default class Message<
       return null
     }
 
-    if (currentMessage && currentMessage.user && currentMessage.user.avatar === null) {
+    if (
+      currentMessage &&
+      currentMessage.user &&
+      currentMessage.user.avatar === null
+    ) {
       return null
     }
 

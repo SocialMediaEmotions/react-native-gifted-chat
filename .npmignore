@@ -6,6 +6,7 @@
 .vscode/
 example-expo/
 example-slack-message/
+example-gifted-chat/
 screenshots/
 babel.config.js
 tests/
@@ -20,3 +21,6 @@ tslint.json
 yarn.lock
 flow-typedefs/
 .flowconfig
+yarn-error.log
+web-build/
+types.d.ts

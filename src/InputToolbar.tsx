@@ -4,7 +4,6 @@ import {
   StyleSheet,
   View,
   Keyboard,
-  ViewPropTypes,
   EmitterSubscription,
   StyleProp,
   ViewStyle,
@@ -14,6 +13,7 @@ import Composer from './Composer'
 import Send from './Send'
 import Actions from './Actions'
 import Color from './Color'
+import { StylePropType } from './utils'
 
 const styles = StyleSheet.create({
   container: {
@@ -67,9 +67,9 @@ export default class InputToolbar extends React.Component<
     renderSend: PropTypes.func,
     renderComposer: PropTypes.func,
     onPressActionButton: PropTypes.func,
-    containerStyle: ViewPropTypes.style,
-    primaryStyle: ViewPropTypes.style,
-    accessoryStyle: ViewPropTypes.style,
+    containerStyle: StylePropType,
+    primaryStyle: StylePropType,
+    accessoryStyle: StylePropType,
   }
 
   state = {
@@ -157,8 +157,8 @@ export default class InputToolbar extends React.Component<
         style={
           [
             styles.container,
-            this.props.containerStyle,
             { position: this.state.position },
+            this.props.containerStyle,
           ] as ViewStyle
         }
       >

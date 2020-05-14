@@ -4,7 +4,6 @@ import {
   Linking,
   StyleSheet,
   View,
-  ViewPropTypes,
   TextProps,
   StyleProp,
   ViewStyle,
@@ -14,7 +13,8 @@ import {
 // @ts-ignore
 import ParsedText from 'react-native-parsed-text'
 import Communications from 'react-native-communications'
-import { LeftRightStyle, IMessage } from './types'
+import { LeftRightStyle, IMessage } from './Models'
+import { StylePropType } from './utils'
 
 const WWW_URL_PATTERN = /^www\./i
 
@@ -52,8 +52,11 @@ const styles = {
   }),
 }
 
+const DEFAULT_OPTION_TITLES = ['Call', 'Text', 'Cancel']
+
 export interface MessageTextProps<TMessage extends IMessage> {
   position: 'left' | 'right'
+  optionTitles?: string[]
   currentMessage?: TMessage
   containerStyle?: LeftRightStyle<ViewStyle>
   textStyle?: LeftRightStyle<TextStyle>
@@ -72,6 +75,7 @@ export default class MessageText<
 
   static defaultProps = {
     position: 'left',
+    optionTitles: DEFAULT_OPTION_TITLES,
     currentMessage: {
       text: '',
     },
@@ -85,22 +89,23 @@ export default class MessageText<
 
   static propTypes = {
     position: PropTypes.oneOf(['left', 'right']),
+    optionTitles: PropTypes.arrayOf(PropTypes.string),
     currentMessage: PropTypes.object,
     containerStyle: PropTypes.shape({
-      left: ViewPropTypes.style,
-      right: ViewPropTypes.style,
+      left: StylePropType,
+      right: StylePropType,
     }),
     textStyle: PropTypes.shape({
-      left: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
-      right: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
+      left: StylePropType,
+      right: StylePropType,
     }),
     linkStyle: PropTypes.shape({
-      left: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
-      right: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
+      left: StylePropType,
+      right: StylePropType,
     }),
     parsePatterns: PropTypes.func,
     textProps: PropTypes.object,
-    customTextStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
+    customTextStyle: StylePropType,
   }
 
   shouldComponentUpdate(nextProps: MessageTextProps<TMessage>) {
@@ -128,7 +133,11 @@ export default class MessageText<
   }
 
   onPhonePress = (phone: string) => {
-    const options = ['Call', 'Text', 'Cancel']
+    const { optionTitles } = this.props
+    const options =
+      optionTitles && optionTitles.length > 0
+        ? optionTitles.slice(0, 3)
+        : DEFAULT_OPTION_TITLES
     const cancelButtonIndex = options.length - 1
     this.context.actionSheet().showActionSheetWithOptions(
       {

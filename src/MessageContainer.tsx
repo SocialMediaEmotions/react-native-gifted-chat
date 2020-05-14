@@ -14,13 +14,15 @@ import {
   NativeScrollEvent,
   StyleProp,
   ViewStyle,
+  Platform,
 } from 'react-native'
 
 import LoadEarlier from './LoadEarlier'
 import Message from './Message'
 import Color from './Color'
-import { User, IMessage, Reply } from './types'
-import { warning } from './utils'
+import { User, IMessage, Reply } from './Models'
+import { warning, StylePropType } from './utils'
+import TypingIndicator from './TypingIndicator'
 
 const styles = StyleSheet.create({
   container: {
@@ -31,7 +33,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   contentContainerStyle: {
-    justifyContent: 'flex-end',
+    flexGrow: 1,
+    justifyContent: 'flex-start',
+  },
+  emptyChatContainer: {
+    flex: 1,
+    transform: [{ scaleY: -1 }],
   },
   headerWrapper: {
     flex: 1,
@@ -60,6 +67,7 @@ const styles = StyleSheet.create({
 
 export interface MessageContainerProps<TMessage extends IMessage> {
   messages?: TMessage[]
+  isTyping?: boolean
   user?: User
   listViewProps: Partial<ListViewProps>
   inverted?: boolean
@@ -71,12 +79,15 @@ export interface MessageContainerProps<TMessage extends IMessage> {
   extraData?: any
   scrollToBottomOffset?: number
   forwardRef?: RefObject<FlatList<IMessage>>
+  renderChatEmpty?(): React.ReactNode
   renderFooter?(props: MessageContainerProps<TMessage>): React.ReactNode
   renderMessage?(props: Message['props']): React.ReactNode
   renderLoadEarlier?(props: LoadEarlier['props']): React.ReactNode
   scrollToBottomComponent?(): React.ReactNode
   onLoadEarlier?(): void
   onQuickReply?(replies: Reply[]): void
+  infiniteScroll?: boolean
+  isLoadingEarlier?: boolean
 }
 
 interface State {
@@ -89,6 +100,8 @@ export default class MessageContainer<
   static defaultProps = {
     messages: [],
     user: {},
+    isTyping: false,
+    renderChatEmpty: null,
     renderFooter: null,
     renderMessage: null,
     onLoadEarlier: () => {},
@@ -102,11 +115,15 @@ export default class MessageContainer<
     scrollToBottomOffset: 200,
     alignTop: false,
     scrollToBottomStyle: {},
+    infiniteScroll: false,
+    isLoadingEarlier: false,
   }
 
   static propTypes = {
     messages: PropTypes.arrayOf(PropTypes.object),
+    isTyping: PropTypes.bool,
     user: PropTypes.object,
+    renderChatEmpty: PropTypes.func,
     renderFooter: PropTypes.func,
     renderMessage: PropTypes.func,
     renderLoadEarlier: PropTypes.func,
@@ -115,11 +132,13 @@ export default class MessageContainer<
     inverted: PropTypes.bool,
     loadEarlier: PropTypes.bool,
     invertibleScrollViewProps: PropTypes.object,
-    extraData: PropTypes.object,
+    extraData: PropTypes.array,
     scrollToBottom: PropTypes.bool,
     scrollToBottomOffset: PropTypes.number,
     scrollToBottomComponent: PropTypes.func,
     alignTop: PropTypes.bool,
+    scrollToBottomStyle: StylePropType,
+    infiniteScroll: PropTypes.bool,
   }
 
   state = {
@@ -190,14 +209,19 @@ export default class MessageContainer<
     )
   }
 
+  renderTypingIndicator = () => {
+    if (Platform.OS === 'web') {
+      return null
+    }
+    return <TypingIndicator isTyping={this.props.isTyping || false} />
+  }
+
   renderFooter = () => {
     if (this.props.renderFooter) {
-      const footerProps = {
-        ...this.props,
-      }
-      return this.props.renderFooter(footerProps)
+      return this.props.renderFooter(this.props)
     }
-    return null
+
+    return this.renderTypingIndicator()
   }
 
   renderLoadEarlier = () => {
@@ -223,7 +247,7 @@ export default class MessageContainer<
     const { inverted } = this.props
     if (inverted) {
       this.scrollTo({ offset: 0, animated })
-    } else {
+    } else if (this.props.forwardRef && this.props.forwardRef.current) {
       this.props.forwardRef!.current!.scrollToEnd({ animated })
     }
   }
@@ -294,6 +318,19 @@ export default class MessageContainer<
     return null
   }
 
+  renderChatEmpty = () => {
+    if (this.props.renderChatEmpty) {
+      return this.props.inverted ? (
+        this.props.renderChatEmpty()
+      ) : (
+        <View style={styles.emptyChatContainer}>
+          {this.props.renderChatEmpty()}
+        </View>
+      )
+    }
+    return <View style={styles.container} />
+  }
+
   renderHeaderWrapper = () => (
     <View style={styles.headerWrapper}>{this.renderLoadEarlier()}</View>
   )
@@ -329,21 +366,35 @@ export default class MessageContainer<
       this.props.messages!.length
     ) {
       setTimeout(
-        () => this.scrollToBottom(false),
+        () => this.scrollToBottom && this.scrollToBottom(false),
         15 * this.props.messages!.length,
       )
+    }
+  }
+
+  onEndReached = ({ distanceFromEnd }: { distanceFromEnd: number }) => {
+    const {
+      loadEarlier,
+      onLoadEarlier,
+      infiniteScroll,
+      isLoadingEarlier,
+    } = this.props
+    if (
+      infiniteScroll &&
+      distanceFromEnd > 0 &&
+      distanceFromEnd <= 100 &&
+      loadEarlier &&
+      onLoadEarlier &&
+      !isLoadingEarlier &&
+      Platform.OS !== 'web'
+    ) {
+      onLoadEarlier()
     }
   }
 
   keyExtractor = (item: TMessage) => `${item._id}`
 
   render() {
-    if (
-      !this.props.messages ||
-      (this.props.messages && this.props.messages.length === 0)
-    ) {
-      return <View style={styles.container} />
-    }
     const { inverted } = this.props
     return (
       <View
@@ -356,7 +407,7 @@ export default class MessageContainer<
           : null}
         <FlatList
           ref={this.props.forwardRef}
-          extraData={this.props.extraData}
+          extraData={[this.props.extraData, this.props.isTyping]}
           keyExtractor={this.keyExtractor}
           enableEmptySections
           automaticallyAdjustContentInsets={false}
@@ -366,6 +417,7 @@ export default class MessageContainer<
           contentContainerStyle={styles.contentContainerStyle}
           renderItem={this.renderRow}
           {...this.props.invertibleScrollViewProps}
+          ListEmptyComponent={this.renderChatEmpty}
           ListFooterComponent={
             inverted ? this.renderHeaderWrapper : this.renderFooter
           }
@@ -375,6 +427,8 @@ export default class MessageContainer<
           onScroll={this.handleOnScroll}
           scrollEventThrottle={100}
           onLayout={this.onLayoutList}
+          onEndReached={this.onEndReached}
+          onEndReachedThreshold={0.1}
           {...this.props.listViewProps}
         />
       </View>

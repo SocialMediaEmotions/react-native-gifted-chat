@@ -5,12 +5,12 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ViewPropTypes,
   StyleProp,
   ViewStyle,
   TextStyle,
 } from 'react-native'
 import Color from './Color'
+import { StylePropType } from './utils'
 
 export interface ActionsProps {
   options?: { [key: string]: any }
@@ -38,8 +38,8 @@ export default class Actions extends React.Component<ActionsProps> {
     optionTintColor: PropTypes.string,
     icon: PropTypes.func,
     onPressActionButton: PropTypes.func,
-    wrapperStyle: ViewPropTypes.style,
-    containerStyle: ViewPropTypes.style,
+    wrapperStyle: StylePropType,
+    containerStyle: StylePropType,
   }
 
   static contextTypes = {

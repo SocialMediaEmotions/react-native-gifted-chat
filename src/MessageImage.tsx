@@ -4,7 +4,6 @@ import {
   Image,
   StyleSheet,
   View,
-  ViewPropTypes,
   ImageProps,
   ViewStyle,
   StyleProp,
@@ -13,7 +12,8 @@ import {
 // TODO: support web
 // @ts-ignore
 import Lightbox from 'react-native-lightbox'
-import { IMessage } from './types'
+import { IMessage } from './Models'
+import { StylePropType } from './utils'
 
 const styles = StyleSheet.create({
   container: {},
@@ -53,8 +53,8 @@ export default class MessageImage<
 
   static propTypes = {
     currentMessage: PropTypes.object,
-    containerStyle: ViewPropTypes.style,
-    imageStyle: PropTypes.object,
+    containerStyle: StylePropType,
+    imageStyle: StylePropType,
     imageProps: PropTypes.object,
     lightboxProps: PropTypes.object,
   }

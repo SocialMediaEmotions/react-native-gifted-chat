@@ -3,14 +3,14 @@ import {
   StyleSheet,
   Text,
   View,
-  ViewPropTypes,
   ViewStyle,
   StyleProp,
   TextStyle,
 } from 'react-native'
 import PropTypes from 'prop-types'
 import Color from './Color'
-import { IMessage } from './types'
+import { IMessage } from './Models'
+import { StylePropType } from './utils'
 
 const styles = StyleSheet.create({
   container: {
@@ -49,9 +49,9 @@ export default class SystemMessage<
 
   static propTypes = {
     currentMessage: PropTypes.object,
-    containerStyle: ViewPropTypes.style,
-    wrapperStyle: ViewPropTypes.style,
-    textStyle: PropTypes.any,
+    containerStyle: StylePropType,
+    wrapperStyle: StylePropType,
+    textStyle: StylePropType,
   }
 
   render() {

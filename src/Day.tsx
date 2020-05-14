@@ -9,6 +9,7 @@ import {
   TextStyle,
 } from 'react-native'
 import dayjs from 'dayjs'
+import 'dayjs/locale/it'
 
 import Color from './Color'
 
@@ -89,7 +90,8 @@ export default class Day<
             <Text style={[styles.text, textStyle]}>
               {dayjs(currentMessage.createdAt)
                 .locale(this.context.getLocale())
-                .format(dateFormat)}
+                .format(dateFormat)
+                .toUpperCase()}
             </Text>
           </View>
         </View>

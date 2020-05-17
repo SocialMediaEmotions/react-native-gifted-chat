@@ -1,6 +1,6 @@
 {
   "name": "react-native-gifted-chat",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "The most complete chat UI for React Native",
   "main": "src/index.ts",
   "types": "lib/index.d.ts",
@@ -98,7 +98,7 @@
   },
   "dependencies": {
     "@expo/react-native-action-sheet": "^3.6.0",
-    "dayjs": "1.8.26",
+    "dayjs": "1.8.27",
     "prop-types": "^15.7.2",
     "react-native-communications": "^2.2.1",
     "react-native-iphone-x-helper": "^1.2.1",

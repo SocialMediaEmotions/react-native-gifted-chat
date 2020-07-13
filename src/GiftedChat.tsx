@@ -129,7 +129,7 @@ export interface GiftedChatProps<TMessage extends IMessage = IMessage> {
   /* infinite scroll up when reach the top of messages container, automatically call onLoadEarlier function if exist */
   infiniteScroll?: boolean
   timeTextStyle?: LeftRightStyle<TextStyle>
-  updateInitiallyContainerHeight?: boolean
+  updateContainerHeight?: boolean
   /* Custom action sheet */
   actionSheet?(): {
     showActionSheetWithOptions: (
@@ -457,7 +457,7 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
       this.setTextFromProp(text)
     }
 
-    if (this.props.updateInitiallyContainerHeight) {
+    if (this.props.updateContainerHeight) {
       this.setState({
         messagesContainerHeight: this.getBasicMessagesContainerHeight(
           this.state.composerHeight,

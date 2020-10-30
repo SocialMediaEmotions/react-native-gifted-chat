@@ -456,7 +456,7 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
       this.setTextFromProp(text)
     }
 
-    if (this.props.minInputToolbarHeight > prevProps.minInputToolbarHeight) {
+    if (this.props.minInputToolbarHeight != prevProps.minInputToolbarHeight) {
       this.setState({
         messagesContainerHeight: this.getBasicMessagesContainerHeight(
           this.state.composerHeight,

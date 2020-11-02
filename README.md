@@ -16,7 +16,6 @@
   <a href="https://www.npmjs.com/package/react-native-gifted-chat">
   <img alt="npm downloads" src="https://img.shields.io/npm/dm/react-native-gifted-chat.svg"/></a>
   <a href="https://www.npmjs.com/package/react-native-gifted-chat"><img alt="npm version" src="https://badge.fury.io/js/react-native-gifted-chat.svg"/></a>
-  <a href="https://greenkeeper.io/"><img src="https://badges.greenkeeper.io/FaridSafi/react-native-gifted-chat.svg" alt="build"></a>
    <a href="https://reactnative.gallery/FaridSafi/gifted-chat"><img src="https://img.shields.io/badge/reactnative.gallery-%F0%9F%8E%AC-green.svg"/></a>
 
 </p>
@@ -81,11 +80,12 @@
   </p>
 </p>
 
+## The future of GiftedChat 🎉 
+Please give us your advice: [Related PR](https://github.com/FaridSafi/react-native-gifted-chat/pull/1775)
+
 ## Please vote
 
 **GiftedChat** depends on other packages and some needs a boost, please vote for PRs will improve it, thanks:
-
-- https://github.com/taskrabbit/react-native-parsed-text/pull/58
 - https://github.com/watadarkstar/react-native-typing-animation/issues/18
 
 ## Features
@@ -132,48 +132,40 @@
 ## Example
 
 ```jsx
-import React from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { GiftedChat } from 'react-native-gifted-chat'
 
-class Example extends React.Component {
-  state = {
-    messages: [],
-  }
+export function Example() {
+  const [messages, setMessages] = useState([]);
 
-  componentDidMount() {
-    this.setState({
-      messages: [
-        {
-          _id: 1,
-          text: 'Hello developer',
-          createdAt: new Date(),
-          user: {
-            _id: 2,
-            name: 'React Native',
-            avatar: 'https://placeimg.com/140/140/any',
-          },
+  useEffect(() => {
+    setMessages([
+      {
+        _id: 1,
+        text: 'Hello developer',
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'React Native',
+          avatar: 'https://placeimg.com/140/140/any',
         },
-      ],
-    })
-  }
+      },
+    ])
+  }, [])
 
-  onSend(messages = []) {
-    this.setState(previousState => ({
-      messages: GiftedChat.append(previousState.messages, messages),
-    }))
-  }
+  const onSend = useCallback((messages = []) => {
+    setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
+  }, [])
 
-  render() {
-    return (
-      <GiftedChat
-        messages={this.state.messages}
-        onSend={messages => this.onSend(messages)}
-        user={{
-          _id: 1,
-        }}
-      />
-    )
-  }
+  return (
+    <GiftedChat
+      messages={messages}
+      onSend={messages => onSend(messages)}
+      user={{
+        _id: 1,
+      }}
+    />
+  )
 }
 ```
 
@@ -189,6 +181,23 @@ See the files in [`example-slack-message`](example-slack-message) for an example
 
 > e.g. Chat Message
 
+```ts
+export interface IMessage {
+  _id: string | number
+  text: string
+  createdAt: Date | number
+  user: User
+  image?: string
+  video?: string
+  audio?: string
+  system?: boolean
+  sent?: boolean
+  received?: boolean
+  pending?: boolean
+  quickReplies?: QuickReplies
+}
+```
+
 ```js
 {
   _id: 1,
@@ -202,6 +211,12 @@ See the files in [`example-slack-message`](example-slack-message) for an example
   image: 'https://facebook.github.io/react/img/logo_og.png',
   // You can also add a video prop:
   video: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+  // Mark the message as sent, using one tick
+  sent: true,
+  // Mark the message as received, using two tick
+  received: true,
+  // Mark the message as pending with a clock loader
+  pending: true,
   // Any additional custom parameters are passed through
 }
 ```
@@ -318,6 +333,7 @@ interface QuickReplies {
 - **`onLongPressAvatar`** _(Function(`user`))_ - Callback when a message avatar is long-pressed
 - **`renderAvatarOnTop`** _(Bool)_ - Render the message avatar at the top of consecutive messages, rather than the bottom; default is `false`
 - **`renderBubble`** _(Function)_ - Custom message bubble
+- **`renderTicks`** _(Function(`message`))_ - Custom ticks indicator to display message status
 - **`renderSystemMessage`** _(Function)_ - Custom system message
 - **`onLongPress`** _(Function(`context`, `message`))_ - Callback when a message bubble is long-pressed; default is to show an ActionSheet with "Copy Text" (see [example using `showActionSheetWithOptions()`](https://github.com/FaridSafi/react-native-gifted-chat/blob/master@%7B2017-09-25%7D/src/Bubble.js#L96-L119))
 - **`inverted`** _(Bool)_ - Reverses display order of `messages`; default is `true`
@@ -333,7 +349,7 @@ interface QuickReplies {
 - **`renderCustomView`** _(Function)_ - Custom view inside the bubble
 - **`renderDay`** _(Function)_ - Custom day above a message
 - **`renderTime`** _(Function)_ - Custom time inside a message
-- **`renderFooter`** _(Function)_ - Custom footer component on the ListView, e.g. `'User is typing...'`; see [example/App.js](example/App.js) for an example. Overrides default typing indicator that triggers when `isTyping` is true.
+- **`renderFooter`** _(Function)_ - Custom footer component on the ListView, e.g. `'User is typing...'`; see [App.tsx](/App.tsx) for an example. Overrides default typing indicator that triggers when `isTyping` is true.
 - **`renderChatEmpty`** _(Function)_ - Custom component to render in the ListView when messages are empty
 - **`renderChatFooter`** _(Function)_ - Custom component to render below the MessageContainer (separate from the ListView)
 - **`renderInputToolbar`** _(Function)_ - Custom message composer container
@@ -435,15 +451,17 @@ If you use React Navigation, additional handling may be required to account for 
 
 ### Native
 
-1. Install `yarn add -g expo-cli`
-2. `expo start`
+1. Install `yarn global add expo-cli`
+2. Install dependencies`yarn install`
+3. `expo start`
 
 ### react-native-web
 
 #### With expo
 
-1. Install `yarn add -g expo-cli`
-2. `expo start -w`
+1. Install `yarn global add expo-cli`
+2. Install dependencies`yarn install`
+3. `expo start -w`
 
 [Upgrade snack version](https://snackager.expo.io/bundle/react-native-gifted-chat@0.15.0?bypassCache=true)
 
@@ -509,4 +527,4 @@ Feel free to ask me questions on Twitter [@FaridSafi](https://www.twitter.com/Fa
 
 ## Hire an expert!
 
-Looking for a ReactNative freelance expert with more than 12 years of experience? Contact Xavier from his [website](https://xaviercarpentier.com)!
+Looking for a ReactNative freelance expert with more than 14 years of experience? Contact Xavier from his [website](https://xaviercarpentier.com)!

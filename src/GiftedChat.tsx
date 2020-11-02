@@ -151,7 +151,7 @@ export interface GiftedChatProps<TMessage extends IMessage = IMessage> {
   /* Custom "Load earlier messages" button */
   renderLoadEarlier?(props: LoadEarlier['props']): React.ReactNode
   /* Custom message avatar; set to null to not render any avatar for the message */
-  renderAvatar?(props: Avatar<TMessage>['props']): React.ReactNode
+  renderAvatar?(props: Avatar<TMessage>['props']): React.ReactNode | null
   /* Custom message bubble */
   renderBubble?(props: Bubble<TMessage>['props']): React.ReactNode
   /*Custom system message */
@@ -167,6 +167,8 @@ export interface GiftedChatProps<TMessage extends IMessage = IMessage> {
   ): React.ReactNode
   /* Custom message image */
   renderMessageImage?(props: MessageImage<TMessage>['props']): React.ReactNode
+  /* Custom message video */
+  renderMessageVideo?(props: MessageImage<TMessage>['props']): React.ReactNode
   /* Custom view inside the bubble */
   renderCustomView?(props: Bubble<TMessage>['props']): React.ReactNode
   /*Custom day above a message*/
@@ -274,7 +276,7 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     renderAccessory: null,
     isKeyboardInternallyHandled: true,
     onPressActionButton: null,
-    bottomOffset: 0,
+    bottomOffset: null,
     minInputToolbarHeight: 44,
     keyboardShouldPersistTaps: Platform.select({
       ios: 'never',
@@ -390,8 +392,8 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
   _locale: string = 'en'
   invertibleScrollViewProps: any = undefined
   _actionSheetRef: any = undefined
-
   _messageContainerRef?: RefObject<FlatList<IMessage>> = React.createRef()
+  _isTextInputWasFocused: boolean = false
   textInput?: any
 
   state = {
@@ -590,21 +592,48 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     )
   }
 
-  safeAreaSupport = (bottomOffset: number) => {
-    return bottomOffset === this._bottomOffset
-      ? this.getBottomOffset()
-        ? this.getBottomOffset()
-        : getBottomSpace()
-      : bottomOffset
+  safeAreaSupport = (bottomOffset?: number) => {
+    return bottomOffset != null ? bottomOffset : getBottomSpace()
+  }
+
+  /**
+   * Store text input focus status when keyboard hide to retrieve
+   * it after wards if needed.
+   * `onKeyboardWillHide` may be called twice in sequence so we
+   * make a guard condition (eg. showing image picker)
+   */
+  handleTextInputFocusWhenKeyboardHide() {
+    if (!this._isTextInputWasFocused) {
+      this._isTextInputWasFocused = this.textInput?.isFocused() || false
+    }
+  }
+
+  /**
+   * Refocus the text input only if it was focused before showing keyboard.
+   * This is needed in some cases (eg. showing image picker).
+   */
+  handleTextInputFocusWhenKeyboardShow() {
+    if (
+      this.textInput &&
+      this._isTextInputWasFocused &&
+      !this.textInput.isFocused()
+    ) {
+      this.textInput.focus()
+    }
+
+    // Reset the indicator since the keyboard is shown
+    this._isTextInputWasFocused = false
   }
 
   onKeyboardWillShow = (e: any) => {
+    this.handleTextInputFocusWhenKeyboardShow()
+
     if (this.props.isKeyboardInternallyHandled) {
       this.setIsTypingDisabled(true)
       this.setKeyboardHeight(
         e.endCoordinates ? e.endCoordinates.height : e.end.height,
       )
-      this.setBottomOffset(this.safeAreaSupport(this.props.bottomOffset!))
+      this.setBottomOffset(this.safeAreaSupport(this.props.bottomOffset))
       const newMessagesContainerHeight = this.getMessagesContainerHeightWithKeyboard()
       this.setState({
         messagesContainerHeight: newMessagesContainerHeight,
@@ -613,6 +642,8 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
   }
 
   onKeyboardWillHide = (_e: any) => {
+    this.handleTextInputFocusWhenKeyboardHide()
+
     if (this.props.isKeyboardInternallyHandled) {
       this.setIsTypingDisabled(true)
       this.setKeyboardHeight(0)

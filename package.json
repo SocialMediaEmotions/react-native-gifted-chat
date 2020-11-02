@@ -1,6 +1,6 @@
 {
   "name": "react-native-gifted-chat",
-  "version": "5.1.0",
+  "version": "5.2.1",
   "description": "The most complete chat UI for React Native",
   "main": "src/index.ts",
   "types": "lib/index.d.ts",
@@ -28,6 +28,7 @@
     "config:dev": "json -I -f package.json -e 'this.main=\"node_modules/expo/AppEntry.js\"'",
     "config:npm": "json -I -f package.json -e 'this.main=\"lib/index.js\"'",
     "lint": "tslint --project .",
+    "lint:fix": "./node_modules/.bin/tslint ./src/**/*.{ts,tsx} --fix",
     "tsc": "node_modules/.bin/tsc --noEmit",
     "start": "yarn config:dev && expo start",
     "start:web": "yarn config:dev && expo start -w --dev",
@@ -36,7 +37,8 @@
     "test:watch": "TZ=Europe/Paris jest --watch",
     "test:coverage": "TZ=Europe/Paris jest --coverage",
     "prepublishOnly": "yarn lint && yarn build && yarn test && yarn config:npm",
-    "postpublish": "yarn config:dev"
+    "postpublish": "yarn config:dev",
+    "prettier": "./node_modules/.bin/prettier --write \"src/**/*.{ts,tsx}\""
   },
   "jest": {
     "preset": "react-native",
@@ -81,7 +83,7 @@
     "expo-image-picker": "~8.1.0",
     "expo-location": "~8.1.0",
     "expo-permissions": "~8.1.0",
-    "flow-bin": "0.123.0",
+    "flow-bin": "0.125.0",
     "husky": "4.2.5",
     "jest-expo": "^37.0.0",
     "json": "9.0.6",
@@ -98,12 +100,12 @@
   },
   "dependencies": {
     "@expo/react-native-action-sheet": "^3.6.0",
-    "dayjs": "1.8.27",
+    "dayjs": "^1.8.26",
     "prop-types": "^15.7.2",
     "react-native-communications": "^2.2.1",
     "react-native-iphone-x-helper": "^1.2.1",
     "react-native-lightbox": "^0.8.1",
-    "react-native-parsed-text": "EvanBacon/react-native-parsed-text",
+    "react-native-parsed-text": "0.0.22",
     "react-native-typing-animation": "^0.1.7",
     "uuid": "3.4.0"
   },
@@ -114,7 +116,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn lint && yarn tsc"
+      "pre-commit": "yarn lint:fix && yarn prettier && yarn tsc"
     }
   }
 }

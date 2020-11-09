@@ -629,7 +629,6 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     this.handleTextInputFocusWhenKeyboardShow()
 
     if (this.props.isKeyboardInternallyHandled) {
-      this.setIsTypingDisabled(true)
       this.setKeyboardHeight(
         e.endCoordinates ? e.endCoordinates.height : e.end.height,
       )
@@ -637,6 +636,7 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
       const newMessagesContainerHeight = this.getMessagesContainerHeightWithKeyboard()
       this.setState({
         messagesContainerHeight: newMessagesContainerHeight,
+        typingDisabled: false,
       })
     }
   }
@@ -645,12 +645,12 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     this.handleTextInputFocusWhenKeyboardHide()
 
     if (this.props.isKeyboardInternallyHandled) {
-      this.setIsTypingDisabled(true)
       this.setKeyboardHeight(0)
       this.setBottomOffset(0)
       const newMessagesContainerHeight = this.getBasicMessagesContainerHeight()
       this.setState({
         messagesContainerHeight: newMessagesContainerHeight,
+        typingDisabled: false,
       })
     }
   }
@@ -659,14 +659,12 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     if (Platform.OS === 'android') {
       this.onKeyboardWillShow(e)
     }
-    this.setIsTypingDisabled(false)
   }
 
   onKeyboardDidHide = (e: any) => {
     if (Platform.OS === 'android') {
       this.onKeyboardWillHide(e)
     }
-    this.setIsTypingDisabled(false)
   }
 
   scrollToBottom(animated = true) {
